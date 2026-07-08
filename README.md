@@ -16,6 +16,10 @@ graph TD
     F -->|解析实体并清洗| G[extracted_articles.tsv 结构化数据集]
 ```
 
+### 📝 工作流示意图 / Workflow Diagram
+![Workflow Diagram](pipeline_workflow.png)
+
+
 ### 1. 文献检索与 ID 提取 (`01.get_pmid_from_keywords.py`)
 * **功能**：基于本地 `keywords.txt` 中配置的检索词，调用 NCBI Entrez API 检索自 1979 年至今的所有相关文献。
 * **特点**：
