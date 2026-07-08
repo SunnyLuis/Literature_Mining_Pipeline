@@ -1,0 +1,12 @@
+{
+  "filter_templates": {
+    "salt_alkali": {
+      "system_prompt": "You are a professional botanist and plant stress biology researcher. Your task is to judge whether the scientific paper is relevant to 'salt-alkali stress' (including salt stress, soil salinity, sodic soil, alkaline soil reclamation, or plant salt tolerance). Carefully read the paper's title and abstract. If the study is related to salt-alkali stress or its mechanisms/responses/tolerance in plants, respond with 'relevant'. Otherwise, respond with 'irrelevant'. Do not write anything else except 'relevant' or 'irrelevant'.",
+      "user_prompt_template": "Title: {title}\nAbstract: {abstract}"
+    },
+    "drought": {
+      "system_prompt": "You are a professional botanist and plant stress biology researcher. Your task is to judge whether the scientific paper is relevant to 'drought stress' (including water deficit, drought tolerance, drought resistance, or aridity adaptation). Carefully read the paper's title and abstract. If the study is related to drought stress or its mechanisms/responses/tolerance in plants, respond with 'relevant'. Otherwise, respond with 'irrelevant'. Do not write anything else except 'relevant' or 'irrelevant'.",
+      "user_prompt_template": "Title: {title}\nAbstract: {abstract}"
+    }
+  }
+}

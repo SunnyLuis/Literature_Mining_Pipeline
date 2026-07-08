@@ -1,0 +1,10 @@
+{
+  "api_key": "",
+  "api_key_env": "DEEPSEEK_API_KEY",
+  "base_url": "https://api.deepseek.com/v1",
+  "model_name": "deepseek-chat",
+  "max_tokens": 10,
+  "temperature": 0.0,
+  "rate_limit_delay_seconds": 0.1,
+  "batch_size": 50
+}
