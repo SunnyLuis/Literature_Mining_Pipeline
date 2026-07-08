@@ -87,6 +87,26 @@ def extract_pubtator_data(json_file, output_file):
             if relations_display:
                 record['Relations_Display'] = '; '.join(relations_display)
             
+            # 初始化 annotations 列表及去重 set（在 passage 循环外，避免段落间覆盖，并合并去重）
+            species = []
+            species_ids = []
+            species_dbs = []
+            species_set = set()
+            
+            genes = defaultdict(list)
+            gene_dbs = []
+            genes_set = set()
+            
+            chemicals = []
+            chemical_ids = []
+            chemical_dbs = []
+            chemicals_set = set()
+            
+            diseases = []
+            disease_ids = []
+            disease_dbs = []
+            diseases_set = set()
+            
             # 从passages中提取信息
             for passage in entry.get('passages', []):
                 infons = passage.get('infons', {})
@@ -117,22 +137,7 @@ def extract_pubtator_data(json_file, output_file):
                     if year_match:
                         record['Year'] = year_match.group(1)
                 
-                # 处理annotations
-                species = []
-                species_ids = []
-                species_dbs = []
-                
-                genes = defaultdict(list)
-                gene_dbs = []
-                
-                chemicals = []
-                chemical_ids = []
-                chemical_dbs = []
-                
-                diseases = []
-                disease_ids = []
-                disease_dbs = []
-                
+                # 提取当前段落的 annotations 信息
                 for annotation in passage.get('annotations', []):
                     a_infons = annotation.get('infons', {})
                     a_type = a_infons.get('type', '')
@@ -141,46 +146,58 @@ def extract_pubtator_data(json_file, output_file):
                     a_db = a_infons.get('database', '')
                     
                     if a_type == 'Species':
-                        species.append(a_text)
-                        species_ids.append(a_id)
-                        species_dbs.append(a_db)
+                        combo = (a_id, a_text, a_db)
+                        if combo not in species_set:
+                            species_set.add(combo)
+                            species.append(a_text)
+                            species_ids.append(a_id)
+                            species_dbs.append(a_db)
                     elif a_type == 'Gene':
                         gene_id = a_infons.get('identifier', '')
                         if gene_id:
-                            genes['id'].append(gene_id)
-                            genes['name'].append(a_text)
-                            gene_dbs.append(a_db)
+                            combo = (gene_id, a_text, a_db)
+                            if combo not in genes_set:
+                                genes_set.add(combo)
+                                genes['id'].append(gene_id)
+                                genes['name'].append(a_text)
+                                gene_dbs.append(a_db)
                     elif a_type == 'Chemical':
                         chem_name = a_infons.get('name', a_text)
-                        chemicals.append(chem_name)
-                        chemical_ids.append(a_id)
-                        chemical_dbs.append(a_db)
+                        combo = (a_id, chem_name, a_db)
+                        if combo not in chemicals_set:
+                            chemicals_set.add(combo)
+                            chemicals.append(chem_name)
+                            chemical_ids.append(a_id)
+                            chemical_dbs.append(a_db)
                     elif a_type == 'Disease':
                         disease_name = a_infons.get('name', a_text)
-                        diseases.append(disease_name)
-                        disease_ids.append(a_id)
-                        disease_dbs.append(a_db)
-                
-                # 合并信息
-                if species:
-                    record['Species'] = '|'.join(species)
-                    record['Species_IDs'] = '|'.join(species_ids)
-                    record['Species_Databases'] = '|'.join(species_dbs)
-                
-                if genes['id']:
-                    record['Gene_IDs'] = '|'.join(genes['id'])
-                    record['Gene_Names'] = '|'.join(genes['name'])
-                    record['Gene_Databases'] = '|'.join(gene_dbs)
-                
-                if chemicals:
-                    record['Chemicals'] = '|'.join(chemicals)
-                    record['Chemical_IDs'] = '|'.join(chemical_ids)
-                    record['Chemical_Databases'] = '|'.join(chemical_dbs)
-                
-                if diseases:
-                    record['Diseases'] = '|'.join(diseases)
-                    record['Disease_IDs'] = '|'.join(disease_ids)
-                    record['Disease_Databases'] = '|'.join(disease_dbs)
+                        combo = (a_id, disease_name, a_db)
+                        if combo not in diseases_set:
+                            diseases_set.add(combo)
+                            diseases.append(disease_name)
+                            disease_ids.append(a_id)
+                            disease_dbs.append(a_db)
+            
+            # 遍历完所有段落后，合并信息写入 record
+            if species:
+                record['Species'] = '|'.join(species)
+                record['Species_IDs'] = '|'.join(species_ids)
+                record['Species_Databases'] = '|'.join(species_dbs)
+            
+            if genes['id']:
+                record['Gene_IDs'] = '|'.join(genes['id'])
+                record['Gene_Names'] = '|'.join(genes['name'])
+                record['Gene_Databases'] = '|'.join(gene_dbs)
+            
+            if chemicals:
+                record['Chemicals'] = '|'.join(chemicals)
+                record['Chemical_IDs'] = '|'.join(chemical_ids)
+                record['Chemical_Databases'] = '|'.join(chemical_dbs)
+            
+            if diseases:
+                record['Diseases'] = '|'.join(diseases)
+                record['Disease_IDs'] = '|'.join(disease_ids)
+                record['Disease_Databases'] = '|'.join(disease_dbs)
             
             results.append(record)
     
